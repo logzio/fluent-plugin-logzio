@@ -1,2 +1,2 @@
-# fluentd-plugin-logzio
-new 
+# fluent-plugin-logzio
+new
