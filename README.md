@@ -1,0 +1,2 @@
+# fluentd-plugin-logzio
+new 
