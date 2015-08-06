@@ -20,15 +20,13 @@ describe 'Fluent::LogzioOutputBuffered' do
     end
 
     it 'adds messages to the buffer' do
-      d = driver
+      driver.emit(record1, time)
+      driver.emit(record2, time)
 
-      d.emit(record1, time)
-      d.emit(record2, time)
+      driver.expect_format ['test', 0, { 'field1' => 50, 'otherfield' => 99 }].to_msgpack
+      driver.expect_format ['test', 0, { 'field1' => 150, 'otherfield' => 199 }].to_msgpack
 
-      d.expect_format ['test', 0, { 'field1' => 50, 'otherfield' => 99 }].to_msgpack
-      d.expect_format ['test', 0, { 'field1' => 150, 'otherfield' => 199 }].to_msgpack
-
-      d.run
+      driver.run
     end
   end
 end
