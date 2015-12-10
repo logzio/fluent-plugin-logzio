@@ -7,27 +7,29 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
 * gem install fluent-plugin-logzio
 * Make sure you have an account with Logz.io.
 * Configure Fluentd as below:
-~~~~
+
+```
+    <match your_match>
+      type logzio_buffered
+      endpoint_url https://listener.logz.io:8071?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&type=my_type
+      output_include_time true
+      output_include_tags true
+      buffer_type    file
+      buffer_path    /path/to/buffer/file
+      flush_interval 10s
+      buffer_chunk_limit 1m   # Logz.io has bulk limit of 10M. We recommend set this to 1M, to avoid oversized bulks
+    </match>
+```
+
+If you absolutly must, use the non-buffered plugin (we really recommend using the buffered)
+```
     <match your_match>
       type logzio
       endpoint_url http://listener.logz.io:8090?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     </match>
-~~~~
-or if you want to use buffered plugin:
-~~~~
-    <match your_match>
-      type logzio_buffered
-      endpoint_url http://listener.logz.io:8090?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      output_include_time true  # add 'timestamp' record into log. (default: true)
-      buffer_type    file
-      buffer_path    /path/to/buffer/file
-      flush_interval 10s
-    </match>
-~~~~
-
-Note that buffered plugin uses bulk import to improve performance, so make sure to set Bulk endpoint to endpoint_url.
-
-The `xxx-xxxx...` is your Logz.io access token.
+```
 
 ## Parameters
-**endpoint_url** the url to your Logz.io input (string).
+* **endpoint_url** the url to Logz.io input where `xxx-xxxx...` is your Logz.io access token, and `my_type` is the type of your logs in logz.io
+* **output_include_time** should the appender add a timestamp to your logs on their process time. (recommended)
+* **output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag"
