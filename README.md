@@ -12,10 +12,12 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
     <match your_match>
       type logzio_buffered
       endpoint_url https://listener.logz.io:8071?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&type=my_type
-      output_include_time true  # add 'timestamp' record into log. (default: true)
+      output_include_time true
+      output_include_tags true
       buffer_type    file
       buffer_path    /path/to/buffer/file
       flush_interval 10s
+      buffer_chunk_limit 1m   # Logz.io has bulk limit of 10M. We recommend set this to 1M, to avoid oversized bulks
     </match>
 ```
 
@@ -27,7 +29,7 @@ If you absolutly must, use the non-buffered plugin (we really recommend using th
     </match>
 ```
 
-The `xxx-xxxx...` is your Logz.io access token, and the "my_type" is the type of your logs in logz.io
-
 ## Parameters
-**endpoint_url** the url to your Logz.io input (string).
+**endpoint_url** the url to Logz.io input as `xxx-xxxx...` is your Logz.io access token, and the "my_type" is the type of your logs in logz.io
+**output_include_time** should the appender add a timestamp to your logs on their process time. (recommended)
+**output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag"
