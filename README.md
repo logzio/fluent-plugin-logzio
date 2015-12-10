@@ -30,6 +30,6 @@ If you absolutly must, use the non-buffered plugin (we really recommend using th
 ```
 
 ## Parameters
-##### **endpoint_url** the url to Logz.io input where `xxx-xxxx...` is your Logz.io access token, and `my_type` is the type of your logs in logz.io
-##### **output_include_time** should the appender add a timestamp to your logs on their process time. (recommended)
-##### **output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag"
+* **endpoint_url** the url to Logz.io input where `xxx-xxxx...` is your Logz.io access token, and `my_type` is the type of your logs in logz.io
+* **output_include_time** should the appender add a timestamp to your logs on their process time. (recommended)
+* **output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag"
