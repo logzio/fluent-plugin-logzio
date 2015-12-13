@@ -4,9 +4,9 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'fluent-plugin-logzio'
-  s.version     = '0.0.2'
-  s.authors     = ['Yury Kotov']
-  s.email       = ['bairkan@gmail.com']
+  s.version     = '0.0.3'
+  s.authors     = ['Yury Kotov', 'Roi Rav-Hon']
+  s.email       = ['bairkan@gmail.com', 'roi@logz.io']
   s.homepage    = 'https://github.com/logzio/fluent-plugin-logzio'
   s.summary     = %q{Fluentd plugin for output to Logz.io}
   s.description = %q{Fluentd pluging (fluent.org) for output to Logz.io (logz.io)}
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project = 'fluent-plugin-logzio'
 
   s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split('\n')
+  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ['lib']
   s.required_ruby_version = Gem::Requirement.new('>= 1.9.3')
 
