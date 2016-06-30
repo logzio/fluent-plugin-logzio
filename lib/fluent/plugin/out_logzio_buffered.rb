@@ -36,7 +36,7 @@ module Fluent
       records = []
 
       chunk.msgpack_each {|tag,time,record|
-        record['@timestamp'] ||= Time.at(time).iso8601 if @output_include_time
+        record['@timestamp'] ||= Time.at(time).iso8601(3) if @output_include_time
         record['fluentd_tags'] ||= tag.to_s if @output_include_tags
         records.push(record.to_json)
       }
@@ -44,7 +44,7 @@ module Fluent
       $log.debug "Got flush timeout, containing #{records.length} chunks"
 
       # Setting our request
-      post = Net::HTTP::Post.new @uri.request_uri      
+      post = Net::HTTP::Post.new @uri.request_uri
 
       # Logz.io bulk http endpoint expecting log line with \n delimiter
       post.body = records.join("\n")
@@ -58,7 +58,7 @@ module Fluent
           $log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet"
 
           # If any other non-200, we will try to resend it after 2, 4 and 8 seconds. Then we will give up
-            
+
           sleep_interval = 2
           @retry_count.times do |counter|
 
@@ -78,7 +78,7 @@ module Fluent
               break
 
             else
-              
+
               # Doubling the sleep interval
               sleep_interval *= 2
 
