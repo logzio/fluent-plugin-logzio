@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/fluent-plugin-logzio.svg)](https://badge.fury.io/rb/fluent-plugin-logzio)
+
 Logz.io plugin for [Fluentd](http://www.fluentd.org)
 =============
 With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as output the logs you collect with Fluentd.
