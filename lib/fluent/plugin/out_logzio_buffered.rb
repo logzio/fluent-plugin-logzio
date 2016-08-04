@@ -89,8 +89,8 @@ module Fluent
             end
           end
         end
-      rescue StandardError
-        $log.error "Error connecting to logzio. verify the url #{@endpoint_url}"
+      rescue StandardError => error
+        $log.error "Error connecting to logzio. Got exception: #{error}"
       end
     end
   end
