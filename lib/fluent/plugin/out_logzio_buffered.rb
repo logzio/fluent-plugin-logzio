@@ -5,6 +5,7 @@ module Fluent
     config_param :output_include_time, :bool, default: true
     config_param :output_include_tags, :bool, default: true
     config_param :retry_count, :integer, default: 3 # How many times to resend failed bulks. Undocumented because not suppose to be changed
+    config_param :http_idle_timeout, :integer, default: 5
 
     unless method_defined?(:log)
       define_method('log') { $log }
@@ -21,6 +22,8 @@ module Fluent
       @uri = URI @endpoint_url
       @http = Net::HTTP::Persistent.new 'fluent-plugin-logzio', :ENV
       @http.headers['Content-Type'] = 'text/plain'
+      @http.idle_timeout = @http_idle_timeout
+      @http.socket_options << [Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, 1]
       $log.debug "Started logzio shipper.."
     end
 
