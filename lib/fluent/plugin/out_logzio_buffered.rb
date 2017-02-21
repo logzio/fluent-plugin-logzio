@@ -41,7 +41,7 @@ module Fluent
       chunk.msgpack_each {|tag,time,record|
         record['@timestamp'] ||= Time.at(time).iso8601(3) if @output_include_time
         record['fluentd_tags'] ||= tag.to_s if @output_include_tags
-        records.push(record.to_json)
+        records.push(Yajl.dump(record))
       }
 
       $log.debug "Got flush timeout, containing #{records.length} chunks"

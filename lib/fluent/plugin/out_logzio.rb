@@ -23,7 +23,7 @@ module Fluent
     def emit(tag, es, chain)
       chain.next
       es.each {|time,record|
-        record_json = record.to_json
+        record_json = Yajl.dump(record)
         $log.debug "Record sent #{record_json}"
         post = Net::HTTP::Post.new @uri.request_uri
         post.body = record_json
