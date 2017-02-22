@@ -16,6 +16,7 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
       endpoint_url https://listener.logz.io:8071?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&type=my_type
       output_include_time true
       output_include_tags true
+      output_tags_fieldname @log_name
       buffer_type    file
       buffer_path    /path/to/buffer/file
       flush_interval 10s
@@ -34,5 +35,6 @@ If you absolutly must, use the non-buffered plugin (we really recommend using th
 ## Parameters
 * **endpoint_url** the url to Logz.io input where `xxx-xxxx...` is your Logz.io access token, and `my_type` is the type of your logs in logz.io
 * **output_include_time** should the appender add a timestamp to your logs on their process time. (recommended)
-* **output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag"
+* **output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag" (which can be renamed, see next point)
+* **output_tags_fieldname** set the tag's fieldname, defaults to "fluentd_tag"
 * **http_idle_timeout** timeout in seconds that the http persistent connection will stay open without traffic
