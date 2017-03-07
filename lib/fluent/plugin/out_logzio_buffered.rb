@@ -6,6 +6,7 @@ module Fluent
     config_param :output_include_tags, :bool, default: true
     config_param :retry_count, :integer, default: 3 # How many times to resend failed bulks. Undocumented because not suppose to be changed
     config_param :http_idle_timeout, :integer, default: 5
+    config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
 
     unless method_defined?(:log)
       define_method('log') { $log }
@@ -40,7 +41,7 @@ module Fluent
 
       chunk.msgpack_each {|tag,time,record|
         record['@timestamp'] ||= Time.at(time).iso8601(3) if @output_include_time
-        record['fluentd_tags'] ||= tag.to_s if @output_include_tags
+        record[@output_tags_fieldname] ||= tag.to_s if @output_include_tags
         records.push(Yajl.dump(record))
       }
 
