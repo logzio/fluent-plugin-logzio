@@ -55,40 +55,42 @@ module Fluent
 
       begin
         response = @http.request @uri, post
-        $log.debug "HTTP Response code #{response.code}"
+        should_retry = true
 
         if response.code != '200'
+          if response.code == '401'
+            $log.error("You are not authorized with Logz.io! Token OK? dropping logs...")
+            should_retry = false
+          end
 
-          $log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet"
+          if response.code == '400'
+            $log.info("Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}")
+            should_retry = false
+          end
 
-          # If any other non-200, we will try to resend it after 2, 4 and 8 seconds. Then we will give up
-
+          # If any other non-200 or 400/401, we will try to resend it after 2, 4 and 8 seconds. Then we will give up
           sleep_interval = 2
-          @retry_count.times do |counter|
 
-            $log.debug "Sleeping for #{sleep_interval} seconds, and trying again."
+          if should_retry
+            $log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet"
+            @retry_count.times do |counter|
+              $log.debug "Sleeping for #{sleep_interval} seconds, and trying again."
+              sleep(sleep_interval)
 
-            sleep(sleep_interval)
+              # Retry
+              response = @http.request @uri, post
 
-            # Retry
-            response = @http.request @uri, post
+              # Sucecss, no further action is needed
+              if response.code == 200
+                $log.debug "Successfuly sent the failed bulk."
+                break
+              else
+                # Doubling the sleep interval
+                sleep_interval *= 2
 
-            # Sucecss, no further action is needed
-            if response.code == 200
-
-              $log.debug "Successfuly sent the failed bulk."
-
-              # Breaking out
-              break
-
-            else
-
-              # Doubling the sleep interval
-              sleep_interval *= 2
-
-              if counter == @retry_count - 1
-
-                $log.error "Could not send your bulk after 3 tries. Sorry. Got HTTP #{response.code}"
+                if counter == @retry_count - 1
+                  $log.error "Could not send your bulk after 3 tries. Sorry. Got HTTP #{response.code} with body: #{response.body}"
+                end
               end
             end
           end
