@@ -25,7 +25,7 @@ module Fluent
       @http.headers['Content-Type'] = 'text/plain'
       @http.idle_timeout = @http_idle_timeout
       @http.socket_options << [Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, 1]
-      $log.debug "Started logzio shipper.."
+      log.debug "Started logzio shipper.."
     end
 
     def shutdown
@@ -45,7 +45,7 @@ module Fluent
         records.push(Yajl.dump(record))
       }
 
-      $log.debug "Got flush timeout, containing #{records.length} chunks"
+      log.debug "Got flush timeout, containing #{records.length} chunks"
 
       # Setting our request
       post = Net::HTTP::Post.new @uri.request_uri
@@ -59,12 +59,12 @@ module Fluent
 
         if response.code != '200'
           if response.code == '401'
-            $log.error("You are not authorized with Logz.io! Token OK? dropping logs...")
+            log.error("You are not authorized with Logz.io! Token OK? dropping logs...")
             should_retry = false
           end
 
           if response.code == '400'
-            $log.info("Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}")
+            log.info("Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}")
             should_retry = false
           end
 
@@ -72,9 +72,9 @@ module Fluent
           sleep_interval = 2
 
           if should_retry
-            $log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet"
+            log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet"
             @retry_count.times do |counter|
-              $log.debug "Sleeping for #{sleep_interval} seconds, and trying again."
+              log.debug "Sleeping for #{sleep_interval} seconds, and trying again."
               sleep(sleep_interval)
 
               # Retry
@@ -82,21 +82,21 @@ module Fluent
 
               # Sucecss, no further action is needed
               if response.code == 200
-                $log.debug "Successfuly sent the failed bulk."
+                log.debug "Successfuly sent the failed bulk."
                 break
               else
                 # Doubling the sleep interval
                 sleep_interval *= 2
 
                 if counter == @retry_count - 1
-                  $log.error "Could not send your bulk after 3 tries. Sorry. Got HTTP #{response.code} with body: #{response.body}"
+                  log.error "Could not send your bulk after 3 tries. Sorry. Got HTTP #{response.code} with body: #{response.body}"
                 end
               end
             end
           end
         end
       rescue StandardError => error
-        $log.error "Error connecting to logzio. Got exception: #{error}"
+        log.error "Error connecting to logzio. Got exception: #{error}"
       end
     end
   end
