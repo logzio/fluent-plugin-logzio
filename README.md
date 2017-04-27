@@ -12,7 +12,7 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
 
 ```
     <match your_match>
-      type logzio_buffered
+      @type logzio_buffered
       endpoint_url https://listener.logz.io:8071?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&type=my_type
       output_include_time true
       output_include_tags true
@@ -27,7 +27,7 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
 If you absolutly must, use the non-buffered plugin (we really recommend using the buffered)
 ```
     <match your_match>
-      type logzio
+      @type logzio
       endpoint_url http://listener.logz.io:8090?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     </match>
 ```
