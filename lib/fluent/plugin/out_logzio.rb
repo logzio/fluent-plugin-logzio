@@ -24,15 +24,15 @@ module Fluent
       chain.next
       es.each {|time,record|
         record_json = Yajl.dump(record)
-        $log.debug "Record sent #{record_json}"
+        log.debug "Record sent #{record_json}"
         post = Net::HTTP::Post.new @uri.request_uri
         post.body = record_json
         begin
           response = @http.request @uri, post
-          $log.debug "HTTP Response code #{response.code}"
-          $log.error response.body if response.code != '200'
+          log.debug "HTTP Response code #{response.code}"
+          log.error response.body if response.code != '200'
         rescue StandardError
-          $log.error "Error connecting to logzio verify the url #{@endpoint_url}"
+          log.error "Error connecting to logzio verify the url #{@endpoint_url}"
         end
       }
     end
