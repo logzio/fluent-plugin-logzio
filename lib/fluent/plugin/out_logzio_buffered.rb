@@ -40,9 +40,13 @@ module Fluent
       records = []
 
       chunk.msgpack_each {|tag,time,record|
-        record['@timestamp'] ||= Time.at(time).iso8601(3) if @output_include_time
-        record[@output_tags_fieldname] ||= tag.to_s if @output_include_tags
-        records.push(Yajl.dump(record))
+        begin
+          record['@timestamp'] ||= Time.at(time).iso8601(3) if @output_include_time
+          record[@output_tags_fieldname] ||= tag.to_s if @output_include_tags
+          records.push(Yajl.dump(record))
+        rescue
+          log.error("Adding record #{record} to buffer failed. Exception: #{$!}")
+        end
       }
 
       log.debug "Got flush timeout, containing #{records.length} chunks"
