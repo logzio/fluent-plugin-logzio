@@ -24,17 +24,14 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
     </match>
 ```
 
-If you absolutly must, use the non-buffered plugin (we really recommend using the buffered)
-```
-    <match your_match>
-      @type logzio
-      endpoint_url http://listener.logz.io:8090?token=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    </match>
-```
-
 ## Parameters
 * **endpoint_url** the url to Logz.io input where `xxx-xxxx...` is your Logz.io access token, and `my_type` is the type of your logs in logz.io
 * **output_include_time** should the appender add a timestamp to your logs on their process time. (recommended)
 * **output_include_tags** should the appender add the fluentd tag to the document, called "fluentd_tag" (which can be renamed, see next point)
 * **output_tags_fieldname** set the tag's fieldname, defaults to "fluentd_tag"
 * **http_idle_timeout** timeout in seconds that the http persistent connection will stay open without traffic
+
+
+## Release Notes
+- 0.0.13: BREAKING - Removed non-buffered version. It's really not efficient, and should just not be used. If you are using this version, you should change to the buffered one.
+- 0.0.12: Catch exception when parsing YAML to ignore (instead of crash) not valid logs
