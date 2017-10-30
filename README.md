@@ -33,5 +33,6 @@ With fluent-plugin-logzio you will be able to use [Logz.io](http://logz.io) as o
 
 
 ## Release Notes
+- 0.0.14: Refactor send function to handle more cases, and retry in case of logzio connection failure
 - 0.0.13: BREAKING - Removed non-buffered version. It's really not efficient, and should just not be used. If you are using this version, you should change to the buffered one.
 - 0.0.12: Catch exception when parsing YAML to ignore (instead of crash) not valid logs
