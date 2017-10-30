@@ -84,7 +84,7 @@ module Fluent
 
           if should_retry
             if counter == @retry_count - 1
-                  log.error "Could not send your bulk after 4 tries. Sorry."
+                  log.error "Could not send your bulk after #{retry_count} tries. Sorry."
                   break
             end
             sleep(sleep_interval)
