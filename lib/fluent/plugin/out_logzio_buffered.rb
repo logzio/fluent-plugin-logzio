@@ -4,7 +4,7 @@ module Fluent
     config_param :endpoint_url, :string, default: nil
     config_param :output_include_time, :bool, default: true
     config_param :output_include_tags, :bool, default: true
-    config_param :retry_count, :integer, default: 3 # How many times to resend failed bulks. Undocumented because not suppose to be changed
+    config_param :retry_count, :integer, default: 4 # How many times to resend failed bulks. Undocumented because not suppose to be changed
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
 
@@ -57,50 +57,44 @@ module Fluent
       # Logz.io bulk http endpoint expecting log line with \n delimiter
       post.body = records.join("\n")
 
+      sleep_interval = 2
+
       begin
-        response = @http.request @uri, post
-        should_retry = true
-
-        if response.code != '200'
-          if response.code == '401'
-            log.error("You are not authorized with Logz.io! Token OK? dropping logs...")
-            should_retry = false
+        @retry_count.times do |counter|
+          should_retry = true
+          begin
+            response = @http.request @uri, post
+            if response.code != '200'
+              if response.code == '401'
+                log.error "You are not authorized with Logz.io! Token OK? dropping logs..."
+                should_retry = false
+              elsif response.code == '400'
+                log.info "Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}"
+                should_retry = false
+              else
+                log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet (Try #{counter + 1}/#{@retry_count})"
+              end
+            else
+              log.debug "Successfuly sent bulk"
+              should_retry = false
+            end
+          rescue StandardError => e
+            log.debug "Error connecting to logzio. Got exception: #{e} (Try #{counter + 1}/#{@retry_count})"
           end
-
-          if response.code == '400'
-            log.info("Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}")
-            should_retry = false
-          end
-
-          # If any other non-200 or 400/401, we will try to resend it after 2, 4 and 8 seconds. Then we will give up
-          sleep_interval = 2
 
           if should_retry
-            log.debug "Got HTTP #{response.code} from logz.io, not giving up just yet"
-            @retry_count.times do |counter|
-              log.debug "Sleeping for #{sleep_interval} seconds, and trying again."
-              sleep(sleep_interval)
-
-              # Retry
-              response = @http.request @uri, post
-
-              # Sucecss, no further action is needed
-              if response.code == 200
-                log.debug "Successfuly sent the failed bulk."
-                break
-              else
-                # Doubling the sleep interval
-                sleep_interval *= 2
-
-                if counter == @retry_count - 1
-                  log.error "Could not send your bulk after 3 tries. Sorry. Got HTTP #{response.code} with body: #{response.body}"
-                end
-              end
+            if counter == @retry_count - 1
+                  log.error "Could not send your bulk after 4 tries. Sorry."
+                  break
             end
+            sleep(sleep_interval)
+            sleep_interval *= 2
+          else
+            return
           end
         end
-      rescue StandardError => error
-        log.error "Error connecting to logzio. Got exception: #{error}"
+      rescue Exception => e
+        log.error "Got unexpected exception! Here: #{e}"
       end
     end
   end
