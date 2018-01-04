@@ -40,8 +40,8 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-# The settings below are suggested to provide a good initial experience
-# with RSpec, but feel free to customize to your heart's content.
+  # The settings below are suggested to provide a good initial experience
+  # with RSpec, but feel free to customize to your heart's content.
 =begin
   # These two settings work together to allow you to limit a spec run
   # to individual examples or groups you care about by tagging them with
@@ -94,9 +94,11 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
   require 'net/http/persistent'
-  require 'fluent/test'
+  require 'serverengine'
 
-  require 'fluent/plugin/out_logzio'
+  require 'fluent/test'
+  require 'fluent/test/driver/output'
+
   require 'fluent/plugin/out_logzio_buffered'
 end
 
@@ -112,9 +114,9 @@ RSpec.shared_context 'output context' do
   before(:all) { Fluent::Test.setup }
   let(:instance) { driver.instance }
 
-  let(:time) {0}
-  let(:record1) {{ 'field1' => 50, 'otherfield' => 99}}
-  let(:record2) {{ 'field1' => 150, 'otherfield' => 199}}
+  let(:time) { 0 }
+  let(:record1) { {'field1' => 50, 'otherfield' => 99} }
+  let(:record2) { {'field1' => 150, 'otherfield' => 199} }
   let(:request) { double }
   let(:response) do
     response = double
@@ -124,4 +126,3 @@ RSpec.shared_context 'output context' do
     response
   end
 end
-

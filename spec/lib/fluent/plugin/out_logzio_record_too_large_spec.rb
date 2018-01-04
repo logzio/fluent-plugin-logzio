@@ -6,6 +6,7 @@ describe 'Fluent::LogzioOutputBuffered' do
     %[
       endpoint_url         https://logz.io?token=123
       output_include_time  false
+      bulk_limit           52
     ]
   end
 
@@ -14,7 +15,7 @@ describe 'Fluent::LogzioOutputBuffered' do
 
   describe 'feed' do
     before(:each) do
-      expect(request).to receive(:body=).with('{"field1":50,"otherfield":99,"fluentd_tags":"test"}' + "\n" + '{"field1":150,"otherfield":199,"fluentd_tags":"test"}')
+      expect(request).to receive(:body=).with('{"field1":50,"otherfield":99,"fluentd_tags":"test"}').once
       expect(Net::HTTP::Post).to receive(:new).with('/?token=123').once.and_return(request)
       expect_any_instance_of(Net::HTTP::Persistent).to receive(:request).once.and_return(response)
     end
