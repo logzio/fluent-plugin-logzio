@@ -16,15 +16,11 @@ module Fluent
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
 
-    unless method_defined?(:log)
-      define_method('log') { $log }
-    end
-
     def configure(conf)
       super
       compat_parameters_convert(conf, :buffer)
 
-      $log.debug "Logz.io URL #{@endpoint_url}"
+      log.debug "Logz.io URL #{@endpoint_url}"
     end
 
     def start
@@ -49,7 +45,7 @@ module Fluent
 
     def format(tag, time, record)
       if time.is_a?(Fluent::EventTime)
-        sec_frac = time.sec + time.nsec / 10.0 ** 9
+        sec_frac = time.to_f
       else
         sec_frac = time * 1.0
       end
