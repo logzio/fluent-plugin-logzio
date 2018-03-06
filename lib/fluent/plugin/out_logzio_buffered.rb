@@ -16,15 +16,11 @@ module Fluent
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
 
-    unless method_defined?(:log)
-      define_method('log') { $log }
-    end
-
     def configure(conf)
       super
       compat_parameters_convert(conf, :buffer)
 
-      $log.debug "Logz.io URL #{@endpoint_url}"
+      log.debug "Logz.io URL #{@endpoint_url}"
     end
 
     def start
