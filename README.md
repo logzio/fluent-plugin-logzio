@@ -70,6 +70,7 @@ This is an **example** only. Your needs in production may vary!
 * **bulk_limit** Limit to the size of the Logz.io upload bulk. Defaults to 1000000 bytes leaving about 24kB for overhead.
 
 ## Release Notes
+- 0.0.16: More fluentD 1.0+ adjustments
 - 0.0.15: Support FluentD 1.0+. Split the chunk into bulk uploads, decoupling `chunk_limit_size`/`buffer_chunk_limit` from Logz.io bulk limit. Tunable `bulk_limit` and initial `retry_sleep`.
 - 0.0.14: Refactor send function to handle more cases, and retry in case of logzio connection failure.
 - 0.0.13: BREAKING - Removed non-buffered version. It's really not efficient, and should just not be used. If you are using this version, you should change to the buffered one.
