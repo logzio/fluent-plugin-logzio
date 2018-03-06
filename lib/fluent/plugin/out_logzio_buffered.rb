@@ -45,7 +45,7 @@ module Fluent
 
     def format(tag, time, record)
       if time.is_a?(Fluent::EventTime)
-        sec_frac = time.sec + time.nsec / 10.0 ** 9
+        sec_frac = time.to_f
       else
         sec_frac = time * 1.0
       end
