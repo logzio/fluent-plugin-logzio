@@ -15,12 +15,16 @@ module Fluent
     config_param :bulk_limit, :integer, default: 1000000 # Make sure submission to LogzIO does not exceed 1MB limit and leave some overhead
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
+    config_param :proxy_uri, :string, default: nil
 
     def configure(conf)
       super
       compat_parameters_convert(conf, :buffer)
 
       log.debug "Logz.io URL #{@endpoint_url}"
+      log.debug "Proxy #{@proxy_uri}"
+      
+      ENV['http_proxy'] = @proxy_uri
     end
 
     def start
