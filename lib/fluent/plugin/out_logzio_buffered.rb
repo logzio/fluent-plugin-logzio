@@ -16,6 +16,7 @@ module Fluent
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
     config_param :proxy_uri, :string, default: nil
+    config_param :proxy_cert, :string, default: nil
 
     def configure(conf)
       super
@@ -23,8 +24,10 @@ module Fluent
 
       log.debug "Logz.io URL #{@endpoint_url}"
       log.debug "Proxy #{@proxy_uri}"
+      log.debug "Proxy #{@proxy_cert}"
       
       ENV['http_proxy'] = @proxy_uri
+      ENV['SSL_CERT_FILE'] = @proxy_cert
     end
 
     def start
