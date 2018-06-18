@@ -68,6 +68,7 @@ This is an **example** only. Your needs in production may vary!
 * **retry_count** How many times to resend failed bulks. Defaults to 4 times.
 * **retry_sleep** How long to sleep initially between retries, exponential step-off. Initial default is 2s.
 * **bulk_limit** Limit to the size of the Logz.io upload bulk. Defaults to 1000000 bytes leaving about 24kB for overhead.
+* **bulk_limit_warning_limit** Limit to the size of the Logz.io warning message when a record exceeds bulk_limit to prevent a recursion when Fluent warnings are sent to the Logz.io output.  Defaults to nil (no truncation).
 
 ## Release Notes
 - 0.0.16: More fluentD 1.0+ adjustments
