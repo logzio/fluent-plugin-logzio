@@ -71,6 +71,7 @@ This is an **example** only. Your needs in production may vary!
 * **bulk_limit_warning_limit** Limit to the size of the Logz.io warning message when a record exceeds bulk_limit to prevent a recursion when Fluent warnings are sent to the Logz.io output.  Defaults to nil (no truncation).
 
 ## Release Notes
+- 0.0.17: Optional truncate log messages when they are exceeding bulk size in warning logs
 - 0.0.16: More fluentD 1.0+ adjustments
 - 0.0.15: Support FluentD 1.0+. Split the chunk into bulk uploads, decoupling `chunk_limit_size`/`buffer_chunk_limit` from Logz.io bulk limit. Tunable `bulk_limit` and initial `retry_sleep`.
 - 0.0.14: Refactor send function to handle more cases, and retry in case of logzio connection failure.
