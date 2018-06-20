@@ -13,6 +13,7 @@ module Fluent
     config_param :retry_count, :integer, default: 4 # How many times to resend failed bulks. Undocumented because not suppose to be changed
     config_param :retry_sleep, :integer, default: 2 # How long to sleep initially between retries, exponential step-off
     config_param :bulk_limit, :integer, default: 1000000 # Make sure submission to LogzIO does not exceed 1MB limit and leave some overhead
+    config_param :bulk_limit_warning_limit, :integer, default: nil # If fluent warnings are sent to the Logzio output, truncating is necessary to prevent a recursion
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
 
@@ -74,7 +75,13 @@ module Fluent
         end
 
         if record_size > @bulk_limit
-          log.warn "Record with size #{record_size} exceeds #{@bulk_limit} and can't be sent to Logz.io. Record is: #{json_record}"
+          if @bulk_limit_warning_limit.is_a?(Integer)
+            log.warn "Record with size #{record_size} exceeds #{@bulk_limit} and can't be sent to Logz.io. Record starts with (truncated at #{@bulk_limit_warning_limit} characters): #{json_record[0,@bulk_limit_warning_limit]}"
+            # Send the full message to debug facility
+            log.debug "Record with size #{record_size} exceeds #{@bulk_limit} and can't be sent to Logz.io. Record is: #{json_record}"
+          else
+            log.warn "Record with size #{record_size} exceeds #{@bulk_limit} and can't be sent to Logz.io. Record is: #{json_record}"
+          end
           next
         end
         if bulk_size + record_size > @bulk_limit
