@@ -23,11 +23,17 @@ module Fluent
       compat_parameters_convert(conf, :buffer)
 
       log.debug "Logz.io URL #{@endpoint_url}"
-      log.debug "Proxy #{@proxy_uri}"
-      log.debug "Proxy #{@proxy_cert}"
+
+      if params[:proxy_uri].present?
+        log.debug "Proxy #{@proxy_uri}"
+        ENV['http_proxy'] = @proxy_uri
+      end
+    
+      if params[:proxy_cert].present?
+        log.debug "Proxy #{@proxy_cert}"
+        ENV['SSL_CERT_FILE'] = @proxy_cert
+      end
       
-      ENV['http_proxy'] = @proxy_uri
-      ENV['SSL_CERT_FILE'] = @proxy_cert
     end
 
     def start
