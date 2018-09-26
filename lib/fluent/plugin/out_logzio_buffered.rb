@@ -24,12 +24,12 @@ module Fluent
 
       log.debug "Logz.io URL #{@endpoint_url}"
 
-      if params[:proxy_uri].present?
+      if conf['proxy_uri']
         log.debug "Proxy #{@proxy_uri}"
         ENV['http_proxy'] = @proxy_uri
       end
     
-      if params[:proxy_cert].present?
+      if conf['proxy_cert']
         log.debug "Proxy #{@proxy_cert}"
         ENV['SSL_CERT_FILE'] = @proxy_cert
       end
