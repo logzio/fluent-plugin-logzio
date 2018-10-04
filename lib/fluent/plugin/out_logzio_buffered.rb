@@ -1,7 +1,7 @@
 require 'time'
 require 'fluent/plugin/output'
 
-module Fluent
+module Fluent::Plugin
   class LogzioOutputBuffered < Output
     Fluent::Plugin.register_output('logzio_buffered', self)
 
