@@ -44,6 +44,10 @@ module Fluent::Plugin
       true
     end
 
+    def multi_workers_ready?
+      true
+    end
+
     def format(tag, time, record)
       if time.is_a?(Fluent::EventTime)
         sec_frac = time.to_f
