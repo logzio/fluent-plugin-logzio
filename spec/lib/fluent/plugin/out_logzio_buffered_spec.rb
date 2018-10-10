@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe 'Fluent::LogzioOutputBuffered' do
-  let(:driver) { Fluent::Test::Driver::Output.new(Fluent::LogzioOutputBuffered).configure(config) }
+describe 'Fluent::Plugin::LogzioOutputBuffered' do
+  let(:driver) { Fluent::Test::Driver::Output.new(Fluent::Plugin::LogzioOutputBuffered).configure(config) }
   let(:config) do
     %[
       endpoint_url         https://logz.io?token=123

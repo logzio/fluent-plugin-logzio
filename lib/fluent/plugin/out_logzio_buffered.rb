@@ -1,7 +1,7 @@
 require 'time'
 require 'fluent/plugin/output'
 
-module Fluent
+module Fluent::Plugin
   class LogzioOutputBuffered < Output
     Fluent::Plugin.register_output('logzio_buffered', self)
 
@@ -54,6 +54,10 @@ module Fluent
     end
 
     def formatted_to_msgpack_binary?
+      true
+    end
+
+    def multi_workers_ready?
       true
     end
 
