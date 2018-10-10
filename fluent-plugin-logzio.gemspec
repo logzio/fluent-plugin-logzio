@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'fluent-plugin-logzio'
-  s.version     = '0.0.17'
+  s.version     = '0.0.18'
   s.authors     = ['Yury Kotov', 'Roi Rav-Hon', 'Arcadiy Ivanov']
   s.email       = ['bairkan@gmail.com', 'roi@logz.io', 'arcadiy@ivanov.biz']
   s.homepage    = 'https://github.com/logzio/fluent-plugin-logzio'
