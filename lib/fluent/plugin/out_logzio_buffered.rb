@@ -16,12 +16,25 @@ module Fluent
     config_param :bulk_limit_warning_limit, :integer, default: nil # If fluent warnings are sent to the Logzio output, truncating is necessary to prevent a recursion
     config_param :http_idle_timeout, :integer, default: 5
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
+    config_param :proxy_uri, :string, default: nil
+    config_param :proxy_cert, :string, default: nil
 
     def configure(conf)
       super
       compat_parameters_convert(conf, :buffer)
 
       log.debug "Logz.io URL #{@endpoint_url}"
+
+      if conf['proxy_uri']
+        log.debug "Proxy #{@proxy_uri}"
+        ENV['http_proxy'] = @proxy_uri
+      end
+    
+      if conf['proxy_cert']
+        log.debug "Proxy #{@proxy_cert}"
+        ENV['SSL_CERT_FILE'] = @proxy_cert
+      end
+      
     end
 
     def start
