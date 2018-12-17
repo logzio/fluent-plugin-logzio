@@ -29,12 +29,12 @@ module Fluent::Plugin
         log.debug "Proxy #{@proxy_uri}"
         ENV['http_proxy'] = @proxy_uri
       end
-    
+
       if conf['proxy_cert']
         log.debug "Proxy #{@proxy_cert}"
         ENV['SSL_CERT_FILE'] = @proxy_cert
       end
-      
+
     end
 
     def start
@@ -138,14 +138,14 @@ module Fluent::Plugin
                 log.info "Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}"
                 should_retry = false
               else
-                log.debug "Got HTTP #{response.code} from Logz.io, not giving up just yet (Try #{counter + 1}/#{@retry_count})"
+                log.warn "Got HTTP #{response.code} from Logz.io, not giving up just yet (Try #{counter + 1}/#{@retry_count})"
               end
             else
               log.debug "Successfully sent bulk of #{bulk_records.size} records, size #{bulk_size}B to Logz.io"
               should_retry = false
             end
           rescue StandardError => e
-            log.debug "Error connecting to Logz.io. Got exception: #{e} (Try #{counter + 1}/#{@retry_count})"
+            log.warn "Error connecting to Logz.io. Got exception: #{e} (Try #{counter + 1}/#{@retry_count})"
           end
 
           if should_retry
