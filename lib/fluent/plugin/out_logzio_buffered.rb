@@ -1,5 +1,7 @@
 require 'time'
 require 'fluent/plugin/output'
+require 'zlib'
+require 'stringio'
 
 module Fluent::Plugin
   class LogzioOutputBuffered < Output
@@ -18,6 +20,7 @@ module Fluent::Plugin
     config_param :output_tags_fieldname, :string, default: 'fluentd_tags'
     config_param :proxy_uri, :string, default: nil
     config_param :proxy_cert, :string, default: nil
+    config_param :gzip, :bool, default: false # False for backward compatibility
 
     def configure(conf)
       super
@@ -43,6 +46,9 @@ module Fluent::Plugin
       @uri = URI @endpoint_url
       @http = Net::HTTP::Persistent.new 'fluent-plugin-logzio', :ENV
       @http.headers['Content-Type'] = 'text/plain'
+      if @gzip
+        @http.headers['Content-Encoding'] = 'gzip'
+      end
       @http.idle_timeout = @http_idle_timeout
       @http.socket_options << [Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, 1]
 
@@ -122,7 +128,9 @@ module Fluent::Plugin
 
       # Logz.io bulk http endpoint expecting log line with \n delimiter
       post.body = bulk_records.join("\n")
-
+      if gzip
+        post.body = compress(post.body)
+      end
       sleep_interval = @retry_sleep
 
       begin
@@ -162,6 +170,14 @@ module Fluent::Plugin
       rescue Exception => e
         log.error "Got unexpected exception! Here: #{e}"
       end
+    end
+
+    def compress(string)
+      wio = StringIO.new("w")
+      w_gz = Zlib::GzipWriter.new(wio)
+      w_gz.write(string)
+      w_gz.close
+      wio.string
     end
   end
 end
