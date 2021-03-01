@@ -44,7 +44,7 @@ module Fluent::Plugin
       super
       require 'net/http/persistent'
       @uri = URI @endpoint_url
-      @http = Net::HTTP::Persistent.new name: 'fluent-plugin-logzio'
+      @http = Net::HTTP::Persistent.new name: 'fluent-plugin-logzio', proxy: :ENV
       @http.headers['Content-Type'] = 'text/plain'
       if @gzip
         @http.headers['Content-Encoding'] = 'gzip'
