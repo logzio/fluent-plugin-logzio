@@ -75,6 +75,7 @@ This is an **example** only. Your needs in production may vary!
 
 
 ## Release Notes
+- 0.0.21: Update gem `net-http-persistent` to 3.x.
 - 0.0.20: Support gzip compression
 - 0.0.18: Support proxy_uri and proxy_cert in the configuration file. Put logzio output plugin class under Fluent::Plugin module and thus work with multi workers.
 - 0.0.17: Optional truncate log messages when they are exceeding bulk size in warning logs
