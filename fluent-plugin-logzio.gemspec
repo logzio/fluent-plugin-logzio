@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'fluent-plugin-logzio'
-  s.version     = '0.0.21'
+  s.version     = '0.0.22'
   s.authors     = ['Yury Kotov', 'Roi Rav-Hon', 'Arcadiy Ivanov', 'Miri Ignatiev']
   s.email       = ['bairkan@gmail.com', 'roi@logz.io', 'arcadiy@ivanov.biz', 'miri.ignatiev@logz.io']
   s.homepage    = 'https://github.com/logzio/fluent-plugin-logzio'
@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.required_ruby_version = Gem::Requirement.new('>= 2.1.0')
 
-  s.add_dependency 'net-http-persistent', '~> 3.0'
+  s.add_dependency 'net-http-persistent', '~> 4.0.1'
   s.add_runtime_dependency 'fluentd', ['>= 0.14.0', '< 2']
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'bundler', '~> 1.16'
