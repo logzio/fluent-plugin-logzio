@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.required_ruby_version = Gem::Requirement.new('>= 2.1.0')
 
-  s.add_dependency 'net-http-persistent', '~> 4.0.1'
+  s.add_dependency 'net-http-persistent', '~> 4.0'
   s.add_runtime_dependency 'fluentd', ['>= 0.14.0', '< 2']
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'bundler', '~> 1.16'
