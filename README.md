@@ -69,7 +69,7 @@ This is an **example** only. Your needs in production may vary!
 * **retry_sleep** How long to sleep initially between retries, exponential step-off. Initial default is 2s.
 * **bulk_limit** Limit to the size of the Logz.io upload bulk. Defaults to 1000000 bytes leaving about 24kB for overhead.
 * **bulk_limit_warning_limit** Limit to the size of the Logz.io warning message when a record exceeds bulk_limit to prevent a recursion when Fluent warnings are sent to the Logz.io output.  Defaults to nil (no truncation).
-* **proxy_uri** Your proxy uri. Default is nil
+* **proxy_uri** Your proxy uri. Default is nil. For example: "`my.ip:12345`".
 * **proxy_cert** Your proxy cert. Default is nil
 * **gzip** should the plugin ship the logs in gzip compression. Default is false
 
