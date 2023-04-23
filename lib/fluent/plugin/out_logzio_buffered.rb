@@ -131,44 +131,20 @@ module Fluent::Plugin
       if gzip
         post.body = compress(post.body)
       end
-      sleep_interval = @retry_sleep
 
       begin
-        @retry_count.times do |counter|
-          should_retry = true
-          begin
-            response = @http.request @uri, post
-            if response.code != '200'
-              if response.code == '401'
-                log.error "You are not authorized with Logz.io! Token OK? dropping logs..."
-                should_retry = false
-              elsif response.code == '400'
-                log.info "Got 400 code from Logz.io. This means that some of your logs are too big, or badly formatted. Response: #{response.body}"
-                should_retry = false
-              else
-                log.warn "Got HTTP #{response.code} from Logz.io, not giving up just yet (Try #{counter + 1}/#{@retry_count})"
-              end
-            else
-              log.debug "Successfully sent bulk of #{bulk_records.size} records, size #{bulk_size}B to Logz.io"
-              should_retry = false
-            end
-          rescue StandardError => e
-            log.warn "Error connecting to Logz.io. Got exception: #{e} (Try #{counter + 1}/#{@retry_count})"
-          end
+        response = @http.request @uri, post
+        rescue Net::HTTP::Persistent::Error => e
+          raise e.cause
+      end
 
-          if should_retry
-            if counter == @retry_count - 1
-              log.error "Could not send your bulk after #{retry_count} tries Sorry! Your bulk is: #{post.body}"
-              break
-            end
-            sleep(sleep_interval)
-            sleep_interval *= 2
-          else
-            return
-          end
-        end
-      rescue Exception => e
-        log.error "Got unexpected exception! Here: #{e}"
+      resp_err = response.code.to_s.start_with?('4') || response.code.to_s.start_with?('5')
+
+      raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}" if resp_err
+
+      if not response.code.start_with?('2')
+        log.debug "Failed request body: #{post.body}"
+        log.error "Error while sending POST to #{@uri}: #{response.body}"
       end
     end
 
