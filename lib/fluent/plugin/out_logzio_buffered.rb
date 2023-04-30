@@ -140,12 +140,12 @@ module Fluent::Plugin
 
       resp_err = response.code.to_s.start_with?('4') || response.code.to_s.start_with?('5')
 
-      raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}" if resp_err
-
       if not response.code.start_with?('2')
         log.debug "Failed request body: #{post.body}"
         log.error "Error while sending POST to #{@uri}: #{response.body}"
       end
+
+      raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}" if resp_err
     end
 
     def compress(string)
