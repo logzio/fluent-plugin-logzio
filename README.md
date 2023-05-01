@@ -76,7 +76,7 @@ This is an **example** only. Your needs in production may vary!
 
 ## Release Notes
 - **0.1.0**:
-  - Use fluentd's retry instead of retry in code.
+  - Use fluentd's retry instead of retry in code (raise exception on non-2xx response).
 - 0.0.22: Update gem `net-http-persistent` to 4.x.
 - 0.0.21: Update gem `net-http-persistent` to 3.x.
 - 0.0.20: Support gzip compression
