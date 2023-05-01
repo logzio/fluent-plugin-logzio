@@ -4,8 +4,8 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'fluent-plugin-logzio'
-  s.version     = '0.0.22'
-  s.authors     = ['Yury Kotov', 'Roi Rav-Hon', 'Arcadiy Ivanov', 'Miri Ignatiev']
+  s.version     = '0.1.0'
+  s.authors     = ['Yury Kotov', 'Roi Rav-Hon', 'Arcadiy Ivanov', 'Miri Bar']
   s.email       = ['bairkan@gmail.com', 'roi@logz.io', 'arcadiy@ivanov.biz', 'miri.ignatiev@logz.io']
   s.homepage    = 'https://github.com/logzio/fluent-plugin-logzio'
   s.summary     = %q{Fluentd plugin for output to Logz.io}
