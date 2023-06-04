@@ -138,14 +138,18 @@ module Fluent::Plugin
           raise e.cause
       end
 
-      resp_err = response.code.to_s.start_with?('4') || response.code.to_s.start_with?('5')
-
       if not response.code.start_with?('2')
-        log.debug "Failed request body: #{post.body}"
-        log.error "Error while sending POST to #{@uri}: #{response.body}"
+        if response.code == 400
+          log.error "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will not retry sending. Response body: #{response.body}"
+        elsif response.code == 401
+          log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
+        else
+          log.debug "Failed request body: #{post.body}"
+          log.error "Error while sending POST to #{@uri}: #{response.body}"
+          raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}"
+        end
       end
 
-      raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}" if resp_err
     end
 
     def compress(string)
