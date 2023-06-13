@@ -37,7 +37,21 @@ module Fluent::Plugin
         log.debug "Proxy #{@proxy_cert}"
         ENV['SSL_CERT_FILE'] = @proxy_cert
       end
+      @metric_labels = {
+        type: 'logzio_buffered',
+        plugin_id: 'out_logzio',
+      }
+      @metrics = {
+        num_errors: get_gauge(
+          :fluentd_output_status_num_errors,
+          'Current number of errors.'),
+      }
 
+    end
+
+    def initialize
+      super
+      @registry = ::Prometheus::Client.registry
     end
 
     def start
@@ -141,8 +155,11 @@ module Fluent::Plugin
       if not response.code.start_with?('2')
         if response.code == '400'
           log.error "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will not retry sending. Response body: #{response.body}"
+          log.error "=============> #{@metric_labels}"
+          @metrics[:num_errors].increment(labels: @metric_labels)
         elsif response.code == '401'
           log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
+          @metrics[:num_errors].increment(labels: @metric_labels)
         else
           log.debug "Failed request body: #{post.body}"
           log.error "Error while sending POST to #{@uri}: #{response.body}"
@@ -158,6 +175,16 @@ module Fluent::Plugin
       w_gz.write(string)
       w_gz.close
       wio.string
+    end
+
+    def get_gauge(name, docstring)
+      if @registry.exist?(name)
+        @registry.get(name)
+        log.error('here 1')
+      else
+        @registry.gauge(name, docstring: docstring, labels: @metric_labels)
+        log.error('here 2')
+      end
     end
   end
 end
