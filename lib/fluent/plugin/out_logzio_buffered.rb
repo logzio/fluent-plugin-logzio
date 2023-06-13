@@ -139,9 +139,9 @@ module Fluent::Plugin
       end
 
       if not response.code.start_with?('2')
-        if response.code == 400
+        if response.code == '400'
           log.error "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will not retry sending. Response body: #{response.body}"
-        elsif response.code == 401
+        elsif response.code == '401'
           log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
         else
           log.debug "Failed request body: #{post.body}"
