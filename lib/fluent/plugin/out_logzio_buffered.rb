@@ -42,9 +42,9 @@ module Fluent::Plugin
         plugin_id: 'out_logzio',
       }
       @metrics = {
-        num_errors: get_gauge(
-          :fluentd_output_status_num_errors,
-          'Current number of errors.'),
+        status_codes: get_gauge(
+          :logzio_status_codes,
+          'Status codes received from Logz.io', {"status_code":""}),
       }
 
     end
@@ -151,15 +151,14 @@ module Fluent::Plugin
         rescue Net::HTTP::Persistent::Error => e
           raise e.cause
       end
+      
+      @metrics[:status_codes].increment(labels: merge_labels({'status_code': response.code.to_s}))
 
       if not response.code.start_with?('2')
         if response.code == '400'
           log.error "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will not retry sending. Response body: #{response.body}"
-          log.error "=============> #{@metric_labels}"
-          @metrics[:num_errors].increment(labels: @metric_labels)
         elsif response.code == '401'
           log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
-          @metrics[:num_errors].increment(labels: @metric_labels)
         else
           log.debug "Failed request body: #{post.body}"
           log.error "Error while sending POST to #{@uri}: #{response.body}"
@@ -177,13 +176,15 @@ module Fluent::Plugin
       wio.string
     end
 
-    def get_gauge(name, docstring)
+    def merge_labels(extra_labels= {})
+      @metric_labels.merge extra_labels
+    end
+
+    def get_gauge(name, docstring, extra_labels = {})
       if @registry.exist?(name)
         @registry.get(name)
-        log.error('here 1')
       else
-        @registry.gauge(name, docstring: docstring, labels: @metric_labels)
-        log.error('here 2')
+        @registry.gauge(name, docstring: docstring, labels: @metric_labels.keys + extra_labels.keys)
       end
     end
   end
