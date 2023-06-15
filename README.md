@@ -70,13 +70,22 @@ This is an **example** only. Your needs in production may vary!
 * **bulk_limit** Limit to the size of the Logz.io upload bulk. Defaults to 1000000 bytes leaving about 24kB for overhead.
 * **bulk_limit_warning_limit** Limit to the size of the Logz.io warning message when a record exceeds bulk_limit to prevent a recursion when Fluent warnings are sent to the Logz.io output.  Defaults to nil (no truncation).
 * **proxy_uri** Your proxy uri. Default is nil. For example: "`my.ip:12345`".
-* **proxy_cert** Your proxy cert. Default is nil
-* **gzip** should the plugin ship the logs in gzip compression. Default is false
+* **proxy_cert** Your proxy cert. Default is nil.
+* **gzip** should the plugin ship the logs in gzip compression. Default is false.
+* **error_on_4xx** should the plugin raise an exception (and thus use fluentd's retry) upon 4xx respons from logz.io. Default is false.
+
+
+## Plugin metrics:
+
+| Metric Name | Description | Type | Example |
+| --- | --- | --- | --- |
+| `logzio_status_codes` | Status codes received from Logz.io | Gauge | `logzio_status_codes{type="logzio_buffered",plugin_id="out_logzio",status_code="500"}` |
 
 
 ## Release Notes
-- **0.1.1**:
-  - Prevent retry upon `400` and `401` from Logz.io.
+- **0.2.0**:
+  - Add `error_on_4xx` (defaults to `false`) to determine wheter to raise an exception upon 4xx response from logz.io.
+  - Generate a metric (`logzio_status_codes`) for response codes from Logz.io.
 - **0.1.0**:
   - Use fluentd's retry instead of retry in code (raise exception on non-2xx response).
 - 0.0.22: Update gem `net-http-persistent` to 4.x.

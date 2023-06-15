@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name        = 'fluent-plugin-logzio'
-  s.version     = '0.1.1'
+  s.version     = '0.2.0'
   s.authors     = ['Yury Kotov', 'Roi Rav-Hon', 'Arcadiy Ivanov', 'Miri Bar']
   s.email       = ['bairkan@gmail.com', 'roi@logz.io', 'arcadiy@ivanov.biz', 'miri.ignatiev@logz.io']
   s.homepage    = 'https://github.com/logzio/fluent-plugin-logzio'
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'net-http-persistent', '~> 4.0'
   s.add_runtime_dependency 'fluentd', ['>= 0.14.0', '< 2']
+  s.add_runtime_dependency 'prometheus-client', '>= 2.1.0'
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'bundler', '~> 1.16'
   s.add_development_dependency 'rspec', '~> 3.7'

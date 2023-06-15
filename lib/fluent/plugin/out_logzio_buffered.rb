@@ -6,6 +6,7 @@ require 'stringio'
 module Fluent::Plugin
   class LogzioOutputBuffered < Output
     Fluent::Plugin.register_output('logzio_buffered', self)
+    class RetryableResponse < StandardError; end
 
     helpers :compat_parameters
 
@@ -21,6 +22,7 @@ module Fluent::Plugin
     config_param :proxy_uri, :string, default: nil
     config_param :proxy_cert, :string, default: nil
     config_param :gzip, :bool, default: false # False for backward compatibility
+    config_param :error_on_4xx, :bool, default: false # Should the handler raise error upon 4xx response
 
     def configure(conf)
       super
@@ -155,17 +157,21 @@ module Fluent::Plugin
       @metrics[:status_codes].increment(labels: merge_labels({'status_code': response.code.to_s}))
 
       if not response.code.start_with?('2')
-        if response.code == '400'
-          log.error "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will not retry sending. Response body: #{response.body}"
-        elsif response.code == '401'
-          log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
+        if response.code.start_with?('4') && !@error_on_4xx
+          if response.code == '400'
+            log.error "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will not retry sending. Response body: #{response.body}"
+          elsif response.code == '401'
+            log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
+          else
+            log.error "Received #{response.code} from logzio. Will not retry."
+          end
         else
           log.debug "Failed request body: #{post.body}"
           log.error "Error while sending POST to #{@uri}: #{response.body}"
-          raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}"
+          raise RetryableResponse, "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}", []
         end
       end
-
+      
     end
 
     def compress(string)
