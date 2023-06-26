@@ -176,19 +176,17 @@ module Fluent::Plugin
 
     def process_code_400(bulk_records, response_body)
       max_log_field_size_bytes = 32000
-      malformed_logs_counter = response_body['malformedLines'].to_i
       oversized_logs_counter = response_body['oversizedLines'].to_i
       new_bulk = []
       for log_record in bulk_records
-        log.debug "Malformed lines: #{malformed_logs_counter}"
         log.debug "Oversized lines: #{oversized_logs_counter}"
         if malformed_logs_counter == 0 && oversized_logs_counter == 0
           log.debug "No malformed lines, breaking"
           break
         end
-        log_size = log_record.size
+        msg_size = log_record['message'].size
         # Handle oversized log:
-        if log_size >= max_log_field_size_bytes
+        if msg_size >= max_log_field_size_bytes
           new_log = Yajl.load(log_record)
           new_log['message'] = new_log['message'][0,  max_log_field_size_bytes - 1]
           log.info "new log: #{new_log}" # TODO
