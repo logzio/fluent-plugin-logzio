@@ -179,15 +179,15 @@ module Fluent::Plugin
       oversized_logs_counter = response_body['oversizedLines'].to_i
       new_bulk = []
       for log_record in bulk_records
-        log.debug "Oversized lines: #{oversized_logs_counter}"
-        if malformed_logs_counter == 0 && oversized_logs_counter == 0
+        log.info "Oversized lines: #{oversized_logs_counter}" # todo
+        if oversized_logs_counter == 0
           log.debug "No malformed lines, breaking"
           break
         end
-        msg_size = log_record['message'].size
+        new_log = Yajl.load(log_record)
+        msg_size = new_log['message'].size
         # Handle oversized log:
         if msg_size >= max_log_field_size_bytes
-          new_log = Yajl.load(log_record)
           new_log['message'] = new_log['message'][0,  max_log_field_size_bytes - 1]
           log.debug "new log: #{new_log}"
           new_bulk.append(Yajl.dump(new_log))
