@@ -142,7 +142,7 @@ module Fluent::Plugin
 
       if not response.code.start_with?('2')
         if response.code == '400'
-          log.warn "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will try to proccess and send bad logs. Response body: #{response.body}"
+          log.warn "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will try to proccess and send oversized logs. Response body: #{response.body}"
           process_code_400(bulk_records, Yajl.load(response.body))
         elsif response.code == '401'
           log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
@@ -189,7 +189,7 @@ module Fluent::Plugin
         if msg_size >= max_log_field_size_bytes
           new_log = Yajl.load(log_record)
           new_log['message'] = new_log['message'][0,  max_log_field_size_bytes - 1]
-          log.info "new log: #{new_log}" # TODO
+          log.debug "new log: #{new_log}"
           new_bulk.append(Yajl.dump(new_log))
           oversized_logs_counter -= 1
         end
