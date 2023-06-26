@@ -72,7 +72,6 @@ This is an **example** only. Your needs in production may vary!
 * **proxy_uri** Your proxy uri. Default is nil. For example: "`my.ip:12345`".
 * **proxy_cert** Your proxy cert. Default is nil.
 * **gzip** should the plugin ship the logs in gzip compression. Default is false.
-* **error_on_4xx** should the plugin raise an exception (and thus use fluentd's retry) upon 4xx respons from logz.io. Default is false.
 
 
 ## Plugin metrics:
@@ -84,7 +83,7 @@ This is an **example** only. Your needs in production may vary!
 
 ## Release Notes
 - **0.2.0**:
-  - Add `error_on_4xx` (defaults to `false`) to determine wheter to raise an exception upon 4xx response from logz.io.
+  - Do not retry on 400 and 401. For 400 - try to fix log and resend.
   - Generate a metric (`logzio_status_codes`) for response codes from Logz.io.
 - **0.1.0**:
   - Use fluentd's retry instead of retry in code (raise exception on non-2xx response).
