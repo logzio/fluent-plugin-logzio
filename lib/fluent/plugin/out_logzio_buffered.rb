@@ -202,7 +202,7 @@ module Fluent::Plugin
         if response.code.start_with?('2')
           log.info "Succesfully sent bad logs"
         else
-          log.warn "While trying to send fixed bad logs, got #{response.code} from Logz.io"
+          log.warn "While trying to send fixed bad logs, got #{response.code} from Logz.io, will not try to re-send"
         end
       end
     end
