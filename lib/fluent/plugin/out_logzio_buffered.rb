@@ -6,6 +6,7 @@ require 'stringio'
 module Fluent::Plugin
   class LogzioOutputBuffered < Output
     Fluent::Plugin.register_output('logzio_buffered', self)
+    class RetryableResponse < StandardError; end
 
     helpers :compat_parameters
 
@@ -37,7 +38,21 @@ module Fluent::Plugin
         log.debug "Proxy #{@proxy_cert}"
         ENV['SSL_CERT_FILE'] = @proxy_cert
       end
+      @metric_labels = {
+        type: 'logzio_buffered',
+        plugin_id: 'out_logzio',
+      }
+      @metrics = {
+        status_codes: get_gauge(
+          :logzio_status_codes,
+          'Status codes received from Logz.io', {"status_code":""}),
+      }
 
+    end
+
+    def initialize
+      super
+      @registry = ::Prometheus::Client.registry
     end
 
     def start
@@ -121,6 +136,25 @@ module Fluent::Plugin
     end
 
     def send_bulk(bulk_records, bulk_size)
+      response = do_post(bulk_records, bulk_size)
+      
+      @metrics[:status_codes].increment(labels: merge_labels({'status_code': response.code.to_s}))
+
+      if not response.code.start_with?('2')
+        if response.code == '400'
+          log.warn "Received #{response.code} from Logzio. Some logs may be malformed or too long. Valid logs were succesfully sent into the system. Will try to proccess and send oversized logs. Response body: #{response.body}"
+          process_code_400(bulk_records, Yajl.load(response.body))
+        elsif response.code == '401'
+          log.error "Received #{response.code} from Logzio. Unauthorized, please check your logs shipping token. Will not retry sending. Response body: #{response.body}"
+        else
+          log.debug "Failed request body: #{post.body}"
+          log.error "Error while sending POST to #{@uri}: #{response.body}"
+          raise RetryableResponse, "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}", []
+        end
+      end
+    end
+
+    def do_post(bulk_records, bulk_size)
       log.debug "Sending a bulk of #{bulk_records.size} records, size #{bulk_size}B to Logz.io"
 
       # Setting our request
@@ -136,16 +170,39 @@ module Fluent::Plugin
         response = @http.request @uri, post
         rescue Net::HTTP::Persistent::Error => e
           raise e.cause
+        return response
       end
+    end
 
-      resp_err = response.code.to_s.start_with?('4') || response.code.to_s.start_with?('5')
-
-      if not response.code.start_with?('2')
-        log.debug "Failed request body: #{post.body}"
-        log.error "Error while sending POST to #{@uri}: #{response.body}"
+    def process_code_400(bulk_records, response_body)
+      max_log_field_size_bytes = 32000
+      oversized_logs_counter = response_body['oversizedLines'].to_i
+      new_bulk = []
+      for log_record in bulk_records
+        log.info "Oversized lines: #{oversized_logs_counter}" # todo
+        if oversized_logs_counter == 0
+          log.debug "No malformed lines, breaking"
+          break
+        end
+        new_log = Yajl.load(log_record)
+        msg_size = new_log['message'].size
+        # Handle oversized log:
+        if msg_size >= max_log_field_size_bytes
+          new_log['message'] = new_log['message'][0,  max_log_field_size_bytes - 1]
+          log.debug "new log: #{new_log}"
+          new_bulk.append(Yajl.dump(new_log))
+          oversized_logs_counter -= 1
+        end
       end
-
-      raise "Logzio listener returned (#{response.code}) for #{@uri}:  #{response.body}" if resp_err
+      if new_bulk.size > 0
+        log.debug "Number of fixed bad logs to send: #{new_bulk.size}"
+        response = do_post(new_bulk, new_bulk.size)
+        if response.code.start_with?('2')
+          log.info "Succesfully sent bad logs"
+        else
+          log.warn "While trying to send fixed bad logs, got #{response.code} from Logz.io, will not try to re-send"
+        end
+      end
     end
 
     def compress(string)
@@ -154,6 +211,18 @@ module Fluent::Plugin
       w_gz.write(string)
       w_gz.close
       wio.string
+    end
+
+    def merge_labels(extra_labels= {})
+      @metric_labels.merge extra_labels
+    end
+
+    def get_gauge(name, docstring, extra_labels = {})
+      if @registry.exist?(name)
+        @registry.get(name)
+      else
+        @registry.gauge(name, docstring: docstring, labels: @metric_labels.keys + extra_labels.keys)
+      end
     end
   end
 end
