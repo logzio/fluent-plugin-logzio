@@ -82,11 +82,16 @@ This is an **example** only. Your needs in production may vary!
 
 
 ## Release Notes
-- **0.2.0**:
+- **0.2.1**:
   - Do not retry on 400 and 401. For 400 - try to fix log and resend.
   - Generate a metric (`logzio_status_codes`) for response codes from Logz.io.
+- **0.2.0**: N/A - version was yanked. Please refer to **0.2.1**.
 - **0.1.0**:
   - Use fluentd's retry instead of retry in code (raise exception on non-2xx response).
+
+<details>
+  <summary markdown="span"> Expand to check old versions </summary>
+
 - 0.0.22: Update gem `net-http-persistent` to 4.x.
 - 0.0.21: Update gem `net-http-persistent` to 3.x.
 - 0.0.20: Support gzip compression
@@ -97,3 +102,5 @@ This is an **example** only. Your needs in production may vary!
 - 0.0.14: Refactor send function to handle more cases, and retry in case of logzio connection failure.
 - 0.0.13: BREAKING - Removed non-buffered version. It's really not efficient, and should just not be used. If you are using this version, you should change to the buffered one.
 - 0.0.12: Catch exception when parsing YAML to ignore (instead of crash) not valid logs.
+
+</details>
