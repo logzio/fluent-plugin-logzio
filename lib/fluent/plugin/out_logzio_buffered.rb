@@ -2,6 +2,7 @@ require 'time'
 require 'fluent/plugin/output'
 require 'zlib'
 require 'stringio'
+require 'prometheus/client'
 
 module Fluent::Plugin
   class LogzioOutputBuffered < Output
